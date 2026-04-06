@@ -73,6 +73,61 @@ def show_pie_chart():
     plt.title("Expense Distribution ")
     plt.show()
 
+def edit_expense():
+    rows=[]
+
+    try:
+        with open("expenses.csv", "r") as file:
+            reader=csv.reader(file)
+            rows=list(reader)
+
+            for i, row in enumerate(rows):
+                print(f"{i}: {row}")
+
+            index=int(input("enter the index to edit: "))
+
+            if 0 <= index < len(rows):
+                date=input("enter the date: ")
+                category=input("Enter the new category: ")
+                amount=input("Enter new amount : ")
+                description=input("Enter new description: ")
+
+                rows[index] = [date,category,amount,description]
+
+                with open("expenses.csv", "w", newline="") as file:
+                    writer=csv.writer(file)
+                    writer.writerows(rows)
+                print("Expense updated successfully!")
+            else:
+                print("Invalid index")
+    except FileNotFoundError:
+        print("No expenses found. Please add an expense first.")
+
+def delete_expense():
+    rows=[]
+
+    try:
+        with open("expenses.csv", "r") as file:
+            reader=csv.reader(file)
+            rows=list(reader)
+
+        for i, row in enumerate(rows):
+            print(f"{i}: {row}")
+
+        index=int(input("Enter the index to delete: "))
+        if 0 <= index < len(rows):
+            rows.pop(index)
+
+            with open("expenses.csv", "w", newline="") as file:
+                writer=csv.writer(file)
+                writer.writerows(rows)
+            print("Expense deleted successfully!")
+        else:
+            print("Invalid index")
+    except FileNotFoundError:
+        print("No expenses found. Please add an expense first.")
+
+
 def main():
     while True:
         print("\n1. Add Expense")
