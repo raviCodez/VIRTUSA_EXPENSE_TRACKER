@@ -127,6 +127,26 @@ def delete_expense():
     except FileNotFoundError:
         print("No expenses found. Please add an expense first.")
 
+def budget_alert():
+    limit=float(input("Enter your monthly budget: "))
+    month = input("Enter month (YYYY-MM):")
+
+    total=0
+
+    try:
+        with open("expenses.csv", "r") as file:
+            reader= csv.reader(file)
+            for row in reader:
+                if row[0].startswith(month):
+                    total+=float(row[2])
+        printf(f"Total spent: {total}")
+
+        if total > limit:
+            print("Budget exceeded! Consider reducing your expenses.")
+        else:
+            print("You are within your budget.")
+    except FileNotFoundError:
+        print("No expenses found. Please add an expense first.")
 
 def main():
     while True:
