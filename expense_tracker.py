@@ -5,15 +5,46 @@ import matplotlib.pyplot as plt
 
 
 def add_expense():
-    date = input("Enter the date (YYYY-MM-DD): ")
-    category =input("Enter the category (Food, Travel,Bills): ")
-    amount = float(input("Enter the amount: "))
-    description = input("Enter a description: ")
+    date = input("Enter date (YYYY-MM-DD): ")
+    category = input("Enter category: ")
+    amount = float(input("Enter amount: "))
+    description = input("Enter description: ")
 
-    with open('expenses.csv', 'a', newline='') as file:
+    month = date[:7]
+
+    total = 0
+
+    # Calculate current total
+    try:
+        with open("expenses.csv", "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0].startswith(month):
+                    total += float(row[2])
+    except FileNotFoundError:
+        pass
+
+    new_total = total + amount
+
+    budget = get_budget(month)
+
+    # Save expense
+    with open("expenses.csv", "a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([date, category, amount, description])
-    print("Expense added successfully!")
+
+    print(f"Expense added. Total this month: {new_total}")
+
+    #ALERT LOGIC
+    if budget:
+        if new_total > budget:
+            print(" Budget exceeded! Stop spending!")
+        elif new_total >= 0.8 * budget:
+            print(" Warning: You are nearing your budget. Spend carefully!")
+        else:
+            print("You are within budget.")
+    else:
+        print("No budget set for this month.")
 
 def view_expenses():
     try:
@@ -35,6 +66,29 @@ def monthly_summary():
             if(row[0].startswith(month)):
                 total+=float(row[2])
     print(f"Total expenses for {month}: {total}")
+
+
+def set_budget():
+    month = input("Enter month (YYYY-MM): ")
+    budget = float(input("Enter your monthly budget: "))
+
+    with open("budget.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([month, budget])
+
+    print("Budget saved successfully!")
+
+def get_budget(month):
+    try:
+        with open("budget.csv", "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == month:
+                    return float(row[1])
+    except FileNotFoundError:
+        return None
+
+    return None
 
 def category_analysis():
     data={}
@@ -139,7 +193,7 @@ def budget_alert():
             for row in reader:
                 if row[0].startswith(month):
                     total+=float(row[2])
-        printf(f"Total spent: {total}")
+        print(f"Total spent: {total}")
 
         if total > limit:
             print("Budget exceeded! Consider reducing your expenses.")
@@ -148,6 +202,7 @@ def budget_alert():
     except FileNotFoundError:
         print("No expenses found. Please add an expense first.")
 
+
 def main():
     while True:
         print("\n1. Add Expense")
@@ -155,7 +210,10 @@ def main():
         print("3. Monthly Summary")
         print("4. Category Analysis")
         print("5. Show Pie Chart")
-        print("6. Exit")
+        print("6. Edit Expense")
+        print("7. Delete Expense")
+        print("8. Budget Warning")
+        print("9. Exit")
 
         choice = input("Enter choice: ")
 
@@ -170,6 +228,12 @@ def main():
         elif choice == "5":
             show_pie_chart()
         elif choice == "6":
+            edit_expense()
+        elif choice == "7":
+            delete_expense()
+        elif choice == "8":
+            budget_alert()
+        elif choice == "9":
             break
         else:
             print("Invalid choice")
